@@ -1,0 +1,8 @@
+# The dashboard can show real health data, so keep it on this computer only
+# and don't send usage statistics.
+[server]
+address = "localhost"
+headless = true
+
+[browser]
+gatherUsageStats = false

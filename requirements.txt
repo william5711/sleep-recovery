@@ -1,0 +1,9 @@
+altair==5.5.0
+duckdb==1.4.5
+ipykernel==6.31.0
+matplotlib==3.9.4
+nbconvert==7.17.2
+pandas==2.3.3
+pytest==8.4.2
+scikit-learn==1.6.1
+streamlit==1.50.0

@@ -1,0 +1,8 @@
+[project]
+name = "recovery"
+version = "0.1.0"
+description = "Sleep and recovery analysis of a Google Health export"
+requires-python = ">=3.9"
+
+[tool.setuptools]
+packages = ["recovery"]

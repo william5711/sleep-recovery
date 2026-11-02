@@ -1,0 +1,20 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store
+.claude/
+
+# Personal health data never goes in the repository. The raw export stays in
+# Downloads, and everything built from it lands in data/.
+data/
+*.duckdb
+*.duckdb.wal
+Google Health/
+*.csv
+!calendar.example.csv
+
+# Anything that shows real results: the report and the executed notebook.
+private/
+
+*.egg-info/
