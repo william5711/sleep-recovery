@@ -5,6 +5,14 @@
   <br><em>The dashboard, running on simulated data.</em>
 </p>
 
+## What this demonstrates
+
+- **Merging overlapping time intervals in SQL.** Duplicate sleep records are grouped with gaps-and-islands window functions in DuckDB ([`sql/01_staging.sql`](sql/01_staging.sql#L34-L62)), explained in [one problem in depth](#one-problem-in-depth-every-night-recorded-twice).
+- **Test-driven data cleaning.** Each problem found in the export is reproduced in a small fake export ([`tests/conftest.py`](tests/conftest.py)) and has a test that fails without the fix ([`tests/test_build.py`](tests/test_build.py)).
+- **Walk-forward modeling without leakage.** Each day's HRV prediction comes from a model trained only on earlier days ([`recovery/model.py`](recovery/model.py#L73-L83)). A test changes every later target by 1000 and checks that no earlier prediction moves ([`tests/test_model.py`](tests/test_model.py#L37-L43)).
+- **Honest uncertainty for correlated days.** Group comparisons use a block bootstrap, because neighboring days are alike ([`recovery/analysis.py`](recovery/analysis.py#L53-L79)). A test shows it gives wider, more honest intervals than treating days as independent ([`tests/test_analysis.py`](tests/test_analysis.py#L38-L46)).
+- **Keeping private data out of a public repo.** Everything shown here runs on a simulated export with the same quirks, and a test fails if the notebook is ever committed with outputs.
+
 A data pipeline and analysis built on my own Google Health export: about eight months of sleep, heart rate, HRV, and activity from two wearables, across two countries. Most of the work is turning a messy export into a table that can be trusted. That meant finding duplicate records, mixed time zones, a device change partway through, overlapping step counters, and partial days, then fixing each one with code and a test.
 
 On top of that clean table, the analysis asks whether school changes how I sleep and recover. It compares summer with the term, an internship with free summer days, and exam days with ordinary ones, and tests whether tomorrow's HRV can be predicted. Several answers turned out to be "no clear effect", which is a finding too. It's a study of one person, so the results describe me and nobody else.
