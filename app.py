@@ -2,10 +2,13 @@
 
 It shows data/health.duckdb when that exists, and otherwise simulates an
 export from recovery/simulator.py, so it can be shared without real data.
+Set SIMULATED_ONLY=1 to never read the real database, for screenshots or
+public hosting.
 """
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import altair as alt
@@ -66,7 +69,7 @@ def trend_chart(days: pd.DataFrame, column: str, name: str) -> alt.Chart:
 st.set_page_config(page_title="Sleep and Recovery", layout="wide")
 st.title("Sleep and recovery: summer vs. term")
 
-has_real = DEFAULT_DB.exists()
+has_real = DEFAULT_DB.exists() and os.environ.get("SIMULATED_ONLY") != "1"
 use_sample = st.toggle("Use simulated data", value=not has_real, disabled=not has_real)
 st.caption(
     "Simulated data that copies the shape of a real export." if use_sample

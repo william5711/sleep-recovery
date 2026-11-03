@@ -1,5 +1,10 @@
 # Sleep and Recovery
 
+<p align="center">
+  <img src="docs/dashboard.png" alt="Dashboard with term averages for sleep, bedtime, resting heart rate and steps, and a sleep trend chart" width="800">
+  <br><em>The dashboard, running on simulated data.</em>
+</p>
+
 A data pipeline and analysis built on my own Google Health export: about eight months of sleep, heart rate, HRV, and activity from two wearables, across two countries. Most of the work is turning a messy export into a table that can be trusted. That meant finding duplicate records, mixed time zones, a device change partway through, overlapping step counters, and partial days, then fixing each one with code and a test.
 
 On top of that clean table, the analysis asks whether school changes how I sleep and recover. It compares summer with the term, an internship with free summer days, and exam days with ordinary ones, and tests whether tomorrow's HRV can be predicted. Several answers turned out to be "no clear effect", which is a finding too. It's a study of one person, so the results describe me and nobody else.
@@ -113,7 +118,7 @@ The methods, in `recovery/analysis.py` and `recovery/model.py`:
 .venv/bin/streamlit run app.py
 ```
 
-It shows the real database when `data/health.duckdb` exists, with a switch to simulated data. It has headline numbers, trends, the comparisons, and the model results.
+It shows the real database when `data/health.duckdb` exists, with a switch to simulated data. It has headline numbers, trends, the comparisons, and the model results. Start it with `SIMULATED_ONLY=1` to make sure it never reads the real database, which is how the screenshot above was taken.
 
 ## Tests
 
