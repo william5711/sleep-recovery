@@ -17,6 +17,42 @@ A data pipeline and analysis built on my own Google Health export: about eight m
 
 On top of that clean table, the analysis asks whether school changes how I sleep and recover. It compares summer with the term, an internship with free summer days, and exam days with ordinary ones, and tests whether tomorrow's HRV can be predicted. Several answers turned out to be "no clear effect", which is a finding too. It's a study of one person, so the results describe me and nobody else.
 
+## Results on simulated data
+
+These come from the simulated export in `recovery/simulator.py`, not from my data. The simulator plants its own effects (later bedtimes in the US, more steps in Taiwan, and short nights pulling HRV down), so the numbers show what the pipeline does, not findings about me.
+
+The build prints what the cleaning found:
+
+```text
+Data cleaning
+  Sleep records:   328 in the export, 175 after merging overlapping v1/v2 records of the same sleep
+  Time zones:      3 UTC offsets, every timestamp converted to local time
+  Steps:           2 overlapping sources, one chosen per day (0 days from the phone)
+  Heart devices:   0 Apple Watch days and 151 Fitbit days, kept apart because they measure HRV differently
+  Partial days:    2 dropped at the start and end of the export
+
+column                  days  range
+main_sleep_minutes       151  2026-06-04 to 2026-11-01
+sleep_score              151  2026-06-04 to 2026-11-01
+resting_hr               151  2026-06-04 to 2026-11-01
+hrv_ms                   151  2026-06-04 to 2026-11-01
+readiness_score          151  2026-06-04 to 2026-11-01
+steps                    151  2026-06-04 to 2026-11-01
+active_zone_minutes      145  2026-06-04 to 2026-11-01
+```
+
+Each comparison gives a difference with a 95% block bootstrap interval, and a count of the days behind it:
+
+<p align="center">
+  <img src="docs/comparisons.png" alt="Table comparing term and summer averages for sleep, bedtime, wake time, sleep score, resting HR, HRV, readiness and steps, with differences and 95% intervals" width="800">
+</p>
+
+The HRV models are scored walk-forward against two simple baselines. Here the morning model's interval almost excludes zero, because the simulator makes short nights pull HRV down.
+
+<p align="center">
+  <img src="docs/model.png" alt="Table of mean absolute error for four HRV prediction methods, and a chart of actual HRV against the 7-day average and the evening model" width="800">
+</p>
+
 ## Problems found in the export
 
 These came up while building the table, and each one would have changed the results if missed. Each fix has a test in `tests/test_build.py` that uses a small fake export with the same problem.
@@ -93,16 +129,7 @@ python3 -m venv .venv
 .venv/bin/streamlit run app.py
 ```
 
-The build prints what the cleaning found. On the simulated export:
-
-```text
-Data cleaning
-  Sleep records:   328 in the export, 175 after merging overlapping v1/v2 records of the same sleep
-  Time zones:      3 UTC offsets, every timestamp converted to local time
-  Steps:           2 overlapping sources, one chosen per day (0 days from the phone)
-  Heart devices:   0 Apple Watch days and 151 Fitbit days, kept apart because they measure HRV differently
-  Partial days:    2 dropped at the start and end of the export
-```
+The build prints the cleaning summary shown in [Results on simulated data](#results-on-simulated-data).
 
 `recovery/simulator.py` writes an invented export with the same files and quirks as a real one: duplicate sleep records, two step counters, and a move from the US to Taiwan and back. The dashboard simulates one by itself when there's no real database.
 
