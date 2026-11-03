@@ -43,6 +43,16 @@ def test_duplicate_algorithm_records_count_once(day):
     assert taiwan["total_sleep_minutes"] == 390 + 35
 
 
+def test_overlap_is_checked_against_every_earlier_record(con):
+    # Comparing each record only with the one before it would start a new
+    # sleep at v1's second piece (20:10 is after the first piece ends at 20:00),
+    # though the v2 record still runs to 23:30.
+    merged = con.execute(
+        "SELECT sleep_id FROM sleep_episodes WHERE start_utc < '2026-07-28' ORDER BY start_utc"
+    ).fetchall()
+    assert merged == [("1",)]
+
+
 def test_missing_sleep_score_is_null(day):
     assert day("2026-07-28")["sleep_score"] == pytest.approx(81.5)
     assert day("2026-09-25")["sleep_score"] is None
@@ -93,7 +103,7 @@ def test_quality_counts_what_the_cleaning_fixed(con):
     from recovery.build import quality
 
     q = quality(con)
-    assert (q["sleep_records"], q["sleeps_after_merge"]) == (4, 3)
+    assert (q["sleep_records"], q["sleeps_after_merge"]) == (5, 3)
     assert q["time_zones"] == 2
     assert q["step_sources"] == 2
     assert q["days_steps_not_from_watch"] == 0

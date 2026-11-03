@@ -21,9 +21,12 @@ def sleep(sleep_id, offset, start, end, asleep, algorithm="sleep_session_v2"):
 
 
 SLEEPS = [
-    # Taiwan night, 00:30 to 07:30 local, recorded by both algorithms.
+    # Taiwan night, 00:30 to 07:30 local, recorded by both algorithms. v1 splits
+    # it in two, and its second piece starts after its first piece ends, so
+    # only the v2 record shows the pieces belong to one night.
     sleep(1, "+08:00", "2026-07-27T16:30:00Z", "2026-07-27T23:30:00Z", 390),
-    sleep(2, "+08:00", "2026-07-27T16:31:00Z", "2026-07-27T23:40:00Z", 400, "sleep_session_v1"),
+    sleep(2, "+08:00", "2026-07-27T16:31:00Z", "2026-07-27T20:00:00Z", 200, "sleep_session_v1"),
+    sleep(5, "+08:00", "2026-07-27T20:10:00Z", "2026-07-27T23:40:00Z", 200, "sleep_session_v1"),
     # Afternoon nap the same day, 14:00 to 14:40 local.
     sleep(3, "+08:00", "2026-07-28T06:00:00Z", "2026-07-28T06:40:00Z", 35),
     # Los Angeles night, 01:00 to 08:00 local.
