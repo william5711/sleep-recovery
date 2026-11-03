@@ -29,6 +29,46 @@ These came up while building the table, and each one would have changed the resu
 - **Missing values have markers.** Sleep sub-scores use `-2` for "not calculated", and some Apple HRV rows are `0`. Both are treated as missing.
 - **Some data is too sparse to use.** The stress score has 4 days, there are 21 workouts, and there's no sleep data from the Apple Watch period.
 
+## One problem in depth: every night recorded twice
+
+**The problem.** Fitbit scores most nights with two algorithms, `sleep_session_v1` and `sleep_session_v2`, and the export keeps both records. Their start and end times differ by a few minutes, and v1 sometimes splits a night into two pieces. The two records share no ID that links them, so the only sign they describe the same sleep is that their times overlap.
+
+**Naive approach 1: count every record.** On the simulated export, summing all records gives 13.5 hours of sleep a day instead of 7.0. Every second record also shows up as a "nap".
+
+**Naive approach 2: compare each record with the one before it.** Sorting by start time and starting a new sleep whenever a record begins after the previous record ended (`lag(end_utc)`) almost works. It fails when v1 splits a night:
+
+```text
+v2   00:30 ──────────────────────────────── 07:30
+v1a  00:31 ────────── 04:00
+v1b                         04:10 ───────────────── 07:40
+```
+
+`v1b` starts after `v1a` ends, so `lag()` calls it a new sleep, even though the v2 record still runs until 07:30.
+
+**The fix.** Compare each record with the latest end of *every* earlier record, not just the previous one. A record starts a new sleep only when it begins after all earlier records have ended. A running sum of those starts numbers the sleeps, and `QUALIFY` keeps one record per sleep, v2 first, so every night uses the same algorithm ([`sql/01_staging.sql`](sql/01_staging.sql#L34-L62)):
+
+```sql
+WITH ordered AS (
+    SELECT *, max(end_utc) OVER (
+        ORDER BY start_utc, end_utc ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING
+    ) AS previous_end
+    FROM sleeps
+),
+numbered AS (
+    SELECT *, sum(CASE WHEN previous_end IS NULL OR start_utc >= previous_end THEN 1 ELSE 0 END)
+        OVER (ORDER BY start_utc, end_utc ROWS UNBOUNDED PRECEDING) AS episode
+    FROM ordered
+)
+SELECT * EXCLUDE (previous_end) FROM numbered
+QUALIFY row_number() OVER (
+    PARTITION BY episode
+    ORDER BY CASE algorithm_version WHEN 'sleep_session_v2' THEN 0 WHEN 'sleep_session_v1' THEN 1 ELSE 2 END,
+             minutes_asleep DESC
+) = 1;
+```
+
+**The test.** The fake export in [`tests/conftest.py`](tests/conftest.py) has exactly the night drawn above, plus a real afternoon nap. [`tests/test_build.py`](tests/test_build.py#L38-L53) checks that the night becomes one 390-minute v2 sleep, that the nap is still counted, and that the split v1 pieces don't start a second sleep. Swapping the running `max()` for `lag()` makes three tests fail. On the real export, this step removed about half the sleep records.
+
 ## Privacy
 
 None of my health data or results are in this repository. The code runs on the real export locally, and on a simulated one everywhere else.
