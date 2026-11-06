@@ -1,5 +1,7 @@
 # Sleep and Recovery
 
+[![Tests](https://github.com/william5711/sleep-recovery/actions/workflows/tests.yml/badge.svg)](https://github.com/william5711/sleep-recovery/actions/workflows/tests.yml)
+
 <p align="center">
   <img src="docs/dashboard.png" alt="Dashboard with term averages for sleep, bedtime, resting heart rate and steps, and a sleep trend chart" width="800">
   <br><em>The dashboard, running on simulated data.</em>
