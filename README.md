@@ -195,7 +195,7 @@ The methods, in `recovery/analysis.py` and `recovery/model.py`:
 .venv/bin/streamlit run app.py
 ```
 
-It shows the real database when `data/health.duckdb` exists, with a switch to simulated data. It has headline numbers, trends, the comparisons, and the model results. Start it with `SIMULATED_ONLY=1` to make sure it never reads the real database, which is how the screenshot above was taken.
+It shows the real database when `data/health.duckdb` exists, with a switch to simulated data. It has headline numbers, trends, the comparisons, and the model results. Start it with `SIMULATED_ONLY=1` to make sure it never reads the real database, which is how the screenshots in this README were taken.
 
 ## Tests
 
