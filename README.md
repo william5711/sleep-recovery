@@ -65,7 +65,7 @@ These came up while building the table, and each one would have changed the resu
 - **The phone and the watch both count steps.** Adding them double-counts, so each day uses the single source with the most steps.
 - **The first and last days are partial.** The export begins and ends partway through a day, which made those days look inactive.
 - **Missing values have markers.** Sleep sub-scores use `-2` for "not calculated", and some Apple HRV rows are `0`. Both are treated as missing.
-- **Some data is too sparse to use.** The stress score has 4 days, there are 21 workouts, and there's no sleep data from the Apple Watch period.
+- **Some data is too sparse to use.** The stress score has 4 days, there are 21 workouts, and the Apple Watch period has sleep data for only its last 9 nights.
 
 ## One problem in depth: every night recorded twice
 
