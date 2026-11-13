@@ -202,3 +202,7 @@ It shows the real database when `data/health.duckdb` exists, with a switch to si
 ```bash
 .venv/bin/python -m pytest
 ```
+
+## License
+
+[MIT](LICENSE)
